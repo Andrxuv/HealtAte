@@ -444,13 +444,21 @@ IMPORTANT: All text and string values in the JSON output (such as dishName, ingr
 });
 
 // ─── Serve React frontend (production) ───────────────────────────────────────
+const fs = require('fs');
 const FRONTEND_DIST = path.join(__dirname, '..', 'frontend', 'dist');
-app.use(express.static(FRONTEND_DIST));
+const FRONTEND_INDEX = path.join(FRONTEND_DIST, 'index.html');
 
-// SPA fallback — let React Router handle all non-API routes
-app.get(/^(?!\/api).*$/, (_req, res) => {
-  res.sendFile(path.join(FRONTEND_DIST, 'index.html'));
-});
+if (fs.existsSync(FRONTEND_INDEX)) {
+  app.use(express.static(FRONTEND_DIST));
+  // SPA fallback — all non-/api routes go to index.html
+  app.use((req, res, next) => {
+    if (req.path.startsWith('/api')) return next();
+    res.sendFile(FRONTEND_INDEX);
+  });
+  console.log(`Serving frontend from ${FRONTEND_DIST}`);
+} else {
+  console.warn(`[WARN] Frontend dist not found at ${FRONTEND_DIST} — only API routes will work`);
+}
 
 const server = app.listen(port, () => {
   console.log(`Server running on port ${port} (${SERVER_BUILD})`);
