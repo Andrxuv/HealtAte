@@ -3,6 +3,7 @@ const cors = require('cors');
 const multer = require('multer');
 const { GoogleGenAI } = require('@google/genai');
 const dotenv = require('dotenv');
+const path = require('path');
 
 dotenv.config();
 
@@ -440,6 +441,15 @@ IMPORTANT: All text and string values in the JSON output (such as dishName, ingr
     console.error('Error in analyze-by-name:', debug);
     res.status(500).json({ error: debug.message || 'Failed to analyze dish name', details: debug.message, debug });
   }
+});
+
+// ─── Serve React frontend (production) ───────────────────────────────────────
+const FRONTEND_DIST = path.join(__dirname, '..', 'frontend', 'dist');
+app.use(express.static(FRONTEND_DIST));
+
+// SPA fallback — let React Router handle all non-API routes
+app.get(/^(?!\/api).*$/, (_req, res) => {
+  res.sendFile(path.join(FRONTEND_DIST, 'index.html'));
 });
 
 const server = app.listen(port, () => {

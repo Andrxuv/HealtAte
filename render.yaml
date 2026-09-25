@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: healtate
+    runtime: node
+    rootDir: .
+    buildCommand: cd frontend && npm install && npm run build && cd ../backend && npm install
+    startCommand: node backend/server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: GEMINI_API_KEY
+        sync: false          # set this manually in Render dashboard -> Environment
+      - key: GEMINI_MODELS
+        value: gemini-2.5-flash-lite
