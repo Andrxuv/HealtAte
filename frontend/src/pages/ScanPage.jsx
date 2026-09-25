@@ -4,6 +4,12 @@ import { Camera, Image as ImageIcon, ArrowLeft, Loader2, Check } from 'lucide-re
 import { useStore } from '../store';
 import axios from 'axios';
 
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3001'
+    : 'https://healtate.onrender.com');
+
 export default function ScanPage() {
   const navigate = useNavigate();
   const { userProfile } = useStore();
@@ -30,12 +36,12 @@ export default function ScanPage() {
 
   useEffect(() => {
     axios
-      .get('http://localhost:3001/api/health')
+      .get(`${API_URL}/api/health`)
       .then((res) => setBackendStatus({ ok: true, ...res.data }))
       .catch((err) =>
         setBackendStatus({
           ok: false,
-          message: err.message || 'Backend not reachable on port 3001',
+          message: err.message || `Backend not reachable at ${API_URL}`,
         })
       );
   }, []);
@@ -57,7 +63,7 @@ export default function ScanPage() {
       // Create a temporary object URL for previewing later
       const imagePreviewUrl = URL.createObjectURL(file);
 
-      const response = await axios.post('http://localhost:3001/api/analyze', formData, {
+      const response = await axios.post(`${API_URL}/api/analyze`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -99,7 +105,7 @@ export default function ScanPage() {
       if (err.code === 'ERR_NETWORK' || err.message?.includes('Network Error')) {
         setErrorInfo({
           message:
-            'Cannot reach the server. In a second terminal, run: cd backend && npm start (keep it running on port 3001).',
+            `Cannot reach the server at ${API_URL}. Check that the backend is running and deployed.`,
           details: err.message,
           debug: { step: 'network', message: err.message, code: err.code },
         });
