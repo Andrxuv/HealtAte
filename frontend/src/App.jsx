@@ -14,6 +14,7 @@ import ProfilePage from './pages/ProfilePage';
 import ScanPage from './pages/ScanPage';
 import AnalysisPage from './pages/AnalysisPage';
 import HistoryPage from './pages/HistoryPage';
+import MapPage from './pages/MapPage';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -148,6 +149,7 @@ function App() {
           <Route path="/scan" element={<ScanPage />} />
           <Route path="/analysis" element={<AnalysisPage />} />
           <Route path="/history" element={<HistoryPage />} />
+          <Route path="/map" element={<MapPage />} />
         </Routes>
       </MobileFrame>
     </Router>

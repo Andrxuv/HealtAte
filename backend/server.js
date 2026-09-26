@@ -443,6 +443,148 @@ IMPORTANT: All text and string values in the JSON output (such as dishName, ingr
   }
 });
 
+// ─── /api/places  (SerpApi → Google Maps) ────────────────────────────────────
+// Maps radius (metres) → Google Maps zoom level.
+// Zoom is approximate; we always post-filter by actual haversine distance.
+function radiusToZoom(metres) {
+  if (metres <=  500) return 16;
+  if (metres <= 1000) return 15;
+  if (metres <= 2000) return 14;
+  if (metres <= 3500) return 13;
+  return 12; // 5 000 m+
+}
+
+function haversineM(lat1, lng1, lat2, lng2) {
+  const R    = 6371000;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+async function serpSearch(query, ll, apiKey) {
+  const url =
+    `https://serpapi.com/search.json` +
+    `?engine=google_maps` +
+    `&q=${encodeURIComponent(query)}` +
+    `&ll=${encodeURIComponent(ll)}` +
+    `&type=search` +
+    `&hl=th` +
+    `&api_key=${apiKey}`;
+  const res = await fetch(url);
+  if (!res.ok) {
+    const txt = await res.text().catch(() => '');
+    throw new Error(`SerpApi ${res.status}: ${txt.slice(0, 200)}`);
+  }
+  return res.json();
+}
+
+app.get('/api/places', async (req, res) => {
+  const serpKey = process.env.SERPAPI_KEY?.trim();
+  if (!serpKey) {
+    return res.status(500).json({
+      error: 'SERPAPI_KEY is not configured.',
+      hint: 'Add SERPAPI_KEY=<your key> to backend/.env and restart the server.',
+    });
+  }
+
+  const lat    = parseFloat(req.query.lat);
+  const lng    = parseFloat(req.query.lng);
+  const radius = parseInt(req.query.radius, 10) || 2000;
+  const type   = req.query.type || 'all'; // 'all' | 'restaurant' | 'gym'
+
+  if (isNaN(lat) || isNaN(lng)) {
+    return res.status(400).json({ error: 'lat and lng must be valid numbers.' });
+  }
+
+  const zoom = radiusToZoom(radius);
+  const ll   = `@${lat},${lng},${zoom}z`;
+
+  // Define which SerpApi queries to fire depending on the requested type
+  const queries = [];
+  if (type === 'all' || type === 'restaurant') {
+    queries.push({ q: 'restaurant cafe', category: 'restaurant' });
+  }
+  if (type === 'all' || type === 'gym') {
+    queries.push({ q: 'gym fitness center', category: 'gym' });
+  }
+
+  try {
+    // Fan out requests in parallel
+    const searchResults = await Promise.all(
+      queries.map(({ q, category }) =>
+        serpSearch(q, ll, serpKey)
+          .then((data) => ({ data, category }))
+          .catch((err) => {
+            console.warn(`SerpApi query "${q}" failed: ${err.message}`);
+            return { data: { local_results: [] }, category };
+          })
+      )
+    );
+
+    const seenIds = new Set();
+    const places  = [];
+
+    for (const { data, category } of searchResults) {
+      for (const p of data.local_results || []) {
+        const placeId = p.place_id || p.data_id || p.title;
+        if (seenIds.has(placeId)) continue; // deduplicate across queries
+        seenIds.add(placeId);
+
+        const placeLat = p.gps_coordinates?.latitude;
+        const placeLng = p.gps_coordinates?.longitude;
+        if (!placeLat || !placeLng) continue; // skip entries without coords
+
+        const distM = haversineM(lat, lng, placeLat, placeLng);
+        if (distM > radius) continue; // post-filter to enforce radius strictly
+
+        places.push({
+          id:           placeId || String(Math.random()),
+          type:         category,
+          name:         p.title       || 'ไม่ระบุชื่อ',
+          address:      p.address     || '',
+          lat:          placeLat,
+          lng:          placeLng,
+          distM,
+          rating:       p.rating      ?? null,
+          reviews:      p.reviews     ?? null,
+          phone:        p.phone       || null,
+          // SerpApi returns hours as an object keyed by day name — not a renderable string.
+          // Safely extract a single human-readable string from known string-typed fields.
+          openingHours: (() => {
+            const h = p.hours;
+            if (!h) return null;
+            if (typeof h.currently_open === 'string') return h.currently_open; // "Open ⋅ Closes 10 PM"
+            if (typeof h.open_now === 'boolean') return h.open_now ? 'เปิดอยู่' : 'ปิดแล้ว';
+            return null; // skip objects entirely
+          })(),
+          thumbnail:    p.thumbnail   || null,
+          category:     p.type        || null,
+          description:  typeof p.description === 'string' ? p.description : null,
+          website:      p.website     || null,
+          // Google Maps deep-link: prefer SerpApi's own link, fall back to coords search
+          mapsUrl:      p.link        ||
+                        (placeId && placeId.startsWith('0x')
+                          ? `https://www.google.com/maps/place/?q=place_id:${placeId}`
+                          : `https://www.google.com/maps/search/?api=1&query=${placeLat},${placeLng}`),
+        });
+      }
+    }
+
+    // Sort by distance ascending
+    places.sort((a, b) => a.distM - b.distM);
+
+    res.json({ places, total: places.length, radius, lat, lng });
+  } catch (err) {
+    console.error('Error in /api/places:', err);
+    res.status(500).json({ error: err.message || 'Failed to fetch places.' });
+  }
+});
+
 // ─── Serve React frontend (production) ───────────────────────────────────────
 const fs = require('fs');
 const FRONTEND_DIST = path.join(__dirname, '..', 'frontend', 'dist');
@@ -462,7 +604,7 @@ if (fs.existsSync(FRONTEND_INDEX)) {
 
 const server = app.listen(port, () => {
   console.log(`Server running on port ${port} (${SERVER_BUILD})`);
-  console.log(`Health check: http://localhost:${port}/api/health`);
+  console.log(`api run at: http://localhost:${port}/api/health`);
 });
 
 server.on('error', (err) => {
