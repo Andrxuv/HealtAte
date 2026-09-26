@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Settings } from 'lucide-react';
 import { useStore } from '../store';
 
@@ -96,19 +96,21 @@ export default function ProfilePage() {
   };
 
   const inputCls =
-    'w-full bg-[#f4f3ef] border border-transparent rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#2f6f4c] focus:ring-1 focus:ring-[#2f6f4c] transition-all';
+    'w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-green focus:ring-1 focus:ring-brand-green transition-all';
 
   return (
-    <div className="p-4 space-y-6 bg-[#fcfbf9] min-h-full pb-24 relative">
+    <div className="p-4 space-y-6 bg-brand-cream min-h-full pb-24 relative">
 
-      <div className="bg-[#2f6f4c] rounded-[1.25rem] p-5 text-white flex justify-between items-center relative overflow-hidden">
-        <div className="flex items-center gap-3 relative z-10">
-          <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-[#2f6f4c] font-bold text-lg">
+      <RevealSection delay={0}>
+      <div className="bg-gradient-to-br from-brand-green to-emerald-600 rounded-3xl p-5 text-white flex justify-between items-center relative overflow-hidden shadow-lg shadow-brand-green/30">
+        <div className="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
+        <div className="flex items-center gap-4 relative z-10">
+          <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center font-bold text-xl border border-white/30 shadow-inner">
             {formData.name ? formData.name.substring(0, 2) : 'สช'}
           </div>
           <div>
-            <h2 className="text-[1.1rem] font-bold leading-tight">โปรไฟล์สุขภาพ</h2>
-            <p className="text-xs text-white/80 mt-0.5">
+            <h2 className="text-lg font-bold leading-tight mb-0.5">โปรไฟล์สุขภาพ</h2>
+            <p className="text-xs text-white/90">
               คุณ{formData.name || 'สมชาย ดีใจยิ่ง'}
               {computedAge !== null && (
                 <span className="ml-1 opacity-75">· อายุ {computedAge} ปี</span>
@@ -116,19 +118,21 @@ export default function ProfilePage() {
             </p>
           </div>
         </div>
-        <button className="relative z-10 bg-white/10 p-2 rounded-full backdrop-blur-sm border border-white/20">
-          <Settings size={20} className="text-white/80" />
+        <button className="relative z-10 bg-white/10 p-2.5 rounded-full backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-colors">
+          <Settings size={20} className="text-white" />
         </button>
       </div>
+      </RevealSection>
 
-      <div className="mb-2">
+      <RevealSection delay={100}>
+      <div className="mb-3 px-1">
         <h2 className="text-lg font-bold text-gray-800">ข้อมูลส่วนตัวทั่วไป</h2>
-        <p className="text-[11px] text-gray-500 mt-1">
+        <p className="text-xs text-gray-500 mt-1">
           ระบุข้อมูลพื้นฐานเพื่อใช้ในการคำนวณดัชนีร่างกายและติดต่อยามฉุกเฉิน
         </p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-4 bg-white p-5 rounded-3xl shadow-sm border border-gray-50">
         <div>
           <label className="block text-[11px] font-bold text-gray-700 mb-1">
             ชื่อ-นามสกุล <span className="text-red-500">*</span>
@@ -234,14 +238,18 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <div className="pt-5 border-t border-gray-100 space-y-4">
-          <div>
-            <h2 className="text-lg font-bold text-gray-800">ข้อมูลทางการแพทย์</h2>
-            <p className="text-[11px] text-gray-500 mt-1">
-              ข้อมูลเหล่านี้จะถูกนำไปใช้ในการวิเคราะห์ความเสี่ยงด้านสุขภาพจากอาหารที่สแกน
-            </p>
-          </div>
+      </div>
+      </RevealSection>
 
+      <RevealSection delay={200}>
+      <div className="mb-3 px-1 mt-2">
+        <h2 className="text-lg font-bold text-gray-800">ข้อมูลทางการแพทย์</h2>
+        <p className="text-xs text-gray-500 mt-1">
+          ข้อมูลเหล่านี้จะถูกนำไปใช้ในการวิเคราะห์ความเสี่ยงด้านสุขภาพจากอาหารที่สแกน
+        </p>
+      </div>
+
+      <div className="space-y-4 bg-white p-5 rounded-3xl shadow-sm border border-gray-50">
           <div>
             <label className="block text-[11px] font-bold text-gray-700 mb-1">
               ยาที่แพ้ <span className="text-[10px] font-normal text-gray-400">(Drug Allergies)</span>
@@ -291,10 +299,10 @@ export default function ProfilePage() {
                 <button
                   key={disease}
                   onClick={() => toggleDisease(disease)}
-                  className={`px-2.5 py-1 rounded-full text-[10px] font-medium border transition-colors ${
+                  className={`px-3 py-1.5 rounded-full text-[11px] font-medium border transition-colors ${
                     formData.chronicDiseases?.includes(disease)
-                      ? 'bg-[#2f6f4c] text-white border-[#2f6f4c]'
-                      : 'bg-white text-gray-500 border-gray-200'
+                      ? 'bg-brand-green text-white border-brand-green shadow-sm'
+                      : 'bg-white text-gray-500 border-gray-200 hover:border-brand-green/30'
                   }`}
                 >
                   {disease}
@@ -323,28 +331,54 @@ export default function ProfilePage() {
                     addCustomDisease();
                   }
                 }}
-                className="flex-1 bg-[#f4f3ef] border border-transparent rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#2f6f4c] focus:ring-1 focus:ring-[#2f6f4c] transition-all"
+                className="flex-1 bg-gray-50 border border-gray-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand-green focus:ring-1 focus:ring-brand-green transition-all"
                 placeholder="ระบุโรคประจำตัวอื่นๆ..."
               />
               <button
                 onClick={addCustomDisease}
-                className="bg-[#2f6f4c] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#235339] transition-colors"
+                className="bg-brand-green text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm shadow-brand-green/30 hover:brightness-110 transition-all"
               >
                 เพิ่ม
               </button>
             </div>
           </div>
         </div>
-      </div>
+      </RevealSection>
 
-      <div className="absolute bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-md border-t border-gray-100 rounded-b-[32px]">
+      <div className="absolute bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-xl border-t border-gray-100 rounded-b-[32px]">
         <button
           onClick={saveProfile}
-          className="w-full bg-[#2f6f4c] text-white font-bold rounded-[1rem] py-3.5 hover:bg-[#235339] transition-colors"
+          className="w-full bg-brand-green text-white font-bold rounded-2xl py-4 shadow-lg shadow-brand-green/30 hover:brightness-110 active:scale-[0.98] transition-all"
         >
           บันทึกและปรับปรุงแผนสุขภาพ
         </button>
       </div>
+    </div>
+  );
+}
+
+// ─── Scroll-reveal wrapper ────────────────────────────────────────────────────
+function RevealSection({ children, delay = 0 }) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      { threshold: 0.08, rootMargin: '0px 0px -32px 0px' }
+    );
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+  return (
+    <div
+      ref={ref}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(22px)',
+        transition: `opacity 0.55s ease ${delay}ms, transform 0.55s ease ${delay}ms`,
+      }}
+    >
+      {children}
     </div>
   );
 }

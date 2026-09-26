@@ -439,7 +439,7 @@ function PlaceCard({ place, index, isSelected, onClick }) {
         animationDelay: `${index * 40}ms`,
       }}
     >
-      {/* Thumbnail or fallback icon */}
+      {/* Thumbnail or fallback image */}
       <div style={{
         width: 52, height: 52, borderRadius: 12, flexShrink: 0, overflow: 'hidden',
         background: isGym
@@ -447,19 +447,12 @@ function PlaceCard({ place, index, isSelected, onClick }) {
           : 'linear-gradient(135deg,#dcfce7,#bbf7d0)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
-        {place.thumbnail ? (
-          <img
-            src={place.thumbnail}
-            alt={place.name}
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            onError={(e) => { e.target.style.display = 'none'; }}
-          />
-        ) : (
-          <FontAwesomeIcon
-            icon={isGym ? faDumbbell : faUtensils}
-            style={{ fontSize: 20, color: isGym ? '#2563eb' : '#15803d' }}
-          />
-        )}
+        <img
+          src={place.thumbnail || (isGym ? '/gym_default.jpg' : '/food_default.jpg')}
+          alt={place.name}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          onError={(e) => { e.target.src = isGym ? '/gym_default.jpg' : '/food_default.jpg'; }}
+        />
       </div>
 
       {/* Info */}
@@ -621,37 +614,25 @@ function PlaceDetailSheet({ place, onClose }) {
         </div>
 
         {/* Thumbnail */}
-        {place.thumbnail && (
-          <div style={{ position: 'relative', height: 140, overflow: 'hidden', margin: '0 0 0 0' }}>
-            <img
-              src={place.thumbnail}
-              alt={place.name}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
-            {/* Category badge over image */}
-            <span style={{
-              position: 'absolute', top: 10, left: 14,
-              background: accentColor, color: '#fff',
-              fontSize: 10, fontWeight: 700, padding: '3px 10px',
-              borderRadius: 99, fontFamily: 'Kanit,sans-serif',
-            }}>
-              {isGym ? 'ฟิตเนส / ยิม' : 'ร้านอาหาร'}
-            </span>
-          </div>
-        )}
+        <div style={{ position: 'relative', height: 140, overflow: 'hidden', margin: '0 0 0 0' }}>
+          <img
+            src={place.thumbnail || (isGym ? '/gym_default.jpg' : '/food_default.jpg')}
+            alt={place.name}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            onError={(e) => { e.target.src = isGym ? '/gym_default.jpg' : '/food_default.jpg'; }}
+          />
+          {/* Category badge over image */}
+          <span style={{
+            position: 'absolute', top: 10, left: 14,
+            background: accentColor, color: '#fff',
+            fontSize: 10, fontWeight: 700, padding: '3px 10px',
+            borderRadius: 99, fontFamily: 'Kanit,sans-serif',
+          }}>
+            {place.category || (isGym ? 'ฟิตเนส / ยิม' : 'ร้านอาหาร')}
+          </span>
+        </div>
 
         <div style={{ padding: '14px 18px 24px' }}>
-          {/* Category badge (no thumbnail fallback) */}
-          {!place.thumbnail && (
-            <span style={{
-              display: 'inline-block', background: accentColor + '18', color: accentColor,
-              fontSize: 10, fontWeight: 700, padding: '2px 10px',
-              borderRadius: 99, fontFamily: 'Kanit,sans-serif', marginBottom: 6,
-            }}>
-              {place.category || (isGym ? 'ฟิตเนส / ยิม' : 'ร้านอาหาร')}
-            </span>
-          )}
-
           {/* Name */}
           <h2 style={{
             margin: '0 0 6px', fontSize: 17, fontWeight: 700,

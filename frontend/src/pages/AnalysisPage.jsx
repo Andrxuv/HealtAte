@@ -392,6 +392,7 @@ export default function AnalysisPage() {
           </div>
 
           {/* Ingredients & Editing */}
+          <RevealSection delay={0}>
           <div>
             <div className="flex justify-between items-end mb-3">
               <h2 className="text-lg font-bold text-gray-800">ส่วนผสมที่พบ</h2>
@@ -435,9 +436,11 @@ export default function AnalysisPage() {
               ))}
             </div>
           </div>
+          </RevealSection>
 
           {/* Personalized Risks */}
           {data.risks && data.risks.length > 0 && (
+            <RevealSection delay={80}>
             <div>
               <h2 className="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
                 <ShieldAlert size={20} className="text-red-500" /> ความเสี่ยงที่เกี่ยวข้องกับคุณ
@@ -446,9 +449,9 @@ export default function AnalysisPage() {
                 {data.risks.map((risk, idx) => (
                   <div key={idx} className={cn(
                     'p-4 rounded-2xl border flex gap-3',
-                    risk.severity === 'high' ? 'bg-red-50 border-red-100 text-red-900' :
-                      risk.severity === 'medium' ? 'bg-orange-50 border-orange-100 text-orange-900' :
-                        'bg-yellow-50 border-yellow-100 text-yellow-900'
+                    risk.severity === 'high'   ? 'bg-red-50 border-red-100 text-red-900' :
+                    risk.severity === 'medium' ? 'bg-orange-50 border-orange-100 text-orange-900' :
+                                                 'bg-yellow-50 border-yellow-100 text-yellow-900'
                   )}>
                     <AlertTriangle size={24} className="shrink-0" />
                     <div>
@@ -459,20 +462,22 @@ export default function AnalysisPage() {
                 ))}
               </div>
             </div>
+            </RevealSection>
           )}
 
           {/* Macros */}
-          <div>
-            <h2 className="text-lg font-bold text-gray-800 mb-3">สารอาหารหลัก</h2>
+          <RevealSection delay={120}>
+            <h2 className="text-lg font-bold text-gray-800 mb-4">สารอาหารหลัก</h2>
             <div className="grid grid-cols-2 gap-3">
-              <MacroCard label="Protein" value={data.macros.protein} unit="g" color="bg-blue-50 text-blue-700" />
-              <MacroCard label="Carbs" value={data.macros.carbs} unit="g" color="bg-yellow-50 text-yellow-700" />
-              <MacroCard label="Fat" value={data.macros.fat} unit="g" color="bg-red-50 text-red-700" />
-              <MacroCard label="Fiber" value={data.macros.fiber} unit="g" color="bg-green-50 text-green-700" />
+              <MacroRingCard label="โปรตีน"        value={data.macros.protein} unit="g" max={50}  color="#3b82f6" bg="#eff6ff" track="#bfdbfe" />
+              <MacroRingCard label="คาร์โบไฮเดรต" value={data.macros.carbs}   unit="g" max={300} color="#f59e0b" bg="#fffbeb" track="#fde68a" />
+              <MacroRingCard label="ไขมัน"         value={data.macros.fat}     unit="g" max={65}  color="#ef4444" bg="#fef2f2" track="#fecaca" />
+              <MacroRingCard label="ใยอาหาร"       value={data.macros.fiber}   unit="g" max={28}  color="#22c55e" bg="#f0fdf4" track="#bbf7d0" />
             </div>
-          </div>
+          </RevealSection>
 
           {/* Micronutrients */}
+          <RevealSection delay={160}>
           <div>
             <h2 className="text-lg font-bold text-gray-800 mb-3">ข้อมูลโภชนาการ </h2>
             <p className="text-xs text-gray-500 mb-3">({data.micronutrients.minSugar}-{data.micronutrients.maxSugar}เปรียบเทียบตามร้อยละของปริมาณที่แนะนำต่อวัน)</p>
@@ -482,6 +487,7 @@ export default function AnalysisPage() {
               <ProgressBar label="ไขมันอิ่มตัว" value={data.micronutrients.satFat} unit="g" max={20} warnAt={13} />
             </div>
           </div>
+          </RevealSection>
 
           <button
             onClick={handleSaveToHistory}
@@ -495,14 +501,101 @@ export default function AnalysisPage() {
   );
 }
 
-function MacroCard({ label, value, unit, color }) {
+// ─── Scroll-reveal wrapper ────────────────────────────────────────────────────
+function RevealSection({ children, delay = 0 }) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      { threshold: 0.08, rootMargin: '0px 0px -32px 0px' }
+    );
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
   return (
-    <div className={cn("p-4 rounded-2xl flex flex-col items-center justify-center gap-1", color)}>
-      <span className="text-xs font-semibold uppercase tracking-wider opacity-70">{label}</span>
-      <div className="flex items-end gap-1">
-        <span className="text-2xl font-black">{value}</span>
-        <span className="text-sm font-medium pb-0.5">{unit}</span>
+    <div
+      ref={ref}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(22px)',
+        transition: `opacity 0.55s ease ${delay}ms, transform 0.55s ease ${delay}ms`,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+// ─── Macro Ring Card ──────────────────────────────────────────────────────────
+function MacroRingCard({ label, value, unit, max, color, bg, track }) {
+  const ref = useRef(null);
+  const [animated, setAnimated] = useState(false);
+
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setAnimated(true); obs.disconnect(); } },
+      { threshold: 0.3 }
+    );
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+
+  const pct          = Math.min(Math.round((value / max) * 100), 100);
+  const r            = 28;
+  const circ         = 2 * Math.PI * r;
+  const dashArray    = animated ? `${(pct / 100) * circ} ${circ}` : `0 ${circ}`;
+
+  return (
+    <div
+      ref={ref}
+      style={{
+        background: bg,
+        borderRadius: 20,
+        padding: '18px 12px 14px',
+        border: '1.5px solid rgba(0,0,0,0.05)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 6,
+      }}
+    >
+      {/* Ring */}
+      <div style={{ position: 'relative', width: 72, height: 72 }}>
+        <svg width="72" height="72" viewBox="0 0 72 72" style={{ transform: 'rotate(-90deg)' }}>
+          {/* Track */}
+          <circle cx="36" cy="36" r={r} fill="none" stroke={track} strokeWidth="6" />
+          {/* Progress */}
+          <circle
+            cx="36" cy="36" r={r}
+            fill="none"
+            stroke={color}
+            strokeWidth="6"
+            strokeLinecap="round"
+            strokeDasharray={dashArray}
+            style={{ transition: 'stroke-dasharray 0.9s cubic-bezier(0.4,0,0.2,1)' }}
+          />
+        </svg>
+        {/* Center label */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+        }}>
+          <span style={{ fontSize: 16, fontWeight: 900, color: '#111827', lineHeight: 1 }}>{value}</span>
+          <span style={{ fontSize: 9, color: '#9ca3af', fontWeight: 600, marginTop: 1 }}>{unit}</span>
+        </div>
       </div>
+      {/* Label */}
+      <p style={{ textAlign: 'center', fontSize: 11, fontWeight: 700, color: '#374151', margin: 0 }}>{label}</p>
+      {/* Daily % */}
+      <span style={{
+        background: color + '22', color,
+        fontSize: 9, fontWeight: 700,
+        padding: '2px 8px', borderRadius: 99,
+      }}>
+        {pct}% ต่อวัน
+      </span>
     </div>
   );
 }

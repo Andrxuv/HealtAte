@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store';
 import { Activity } from 'lucide-react';
@@ -23,6 +23,7 @@ export default function HistoryPage() {
       <h1 className="text-2xl font-bold text-brand-green-dark mt-4">ประวัติการทาน</h1>
 
       {/* Cumulative Risk Tracker */}
+      <RevealSection delay={0}>
       <div className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100">
         <h2 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
           <Activity size={16} className="text-brand-green" /> สรุปผลการทานวันนี้
@@ -60,7 +61,10 @@ export default function HistoryPage() {
         </div>
       </div>
 
+      </RevealSection>
+
       {/* History List */}
+      <RevealSection delay={100}>
       <div>
         <h3 className="font-bold text-gray-800 mb-4">วิเคราะห์ล่าสุด</h3>
         {history.length === 0 ? (
@@ -99,6 +103,33 @@ export default function HistoryPage() {
           </div>
         )}
       </div>
+      </RevealSection>
+    </div>
+  );
+}
+
+// ─── Scroll-reveal wrapper ────────────────────────────────────────────────────
+function RevealSection({ children, delay = 0 }) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      { threshold: 0.08, rootMargin: '0px 0px -32px 0px' }
+    );
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+  return (
+    <div
+      ref={ref}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(22px)',
+        transition: `opacity 0.55s ease ${delay}ms, transform 0.55s ease ${delay}ms`,
+      }}
+    >
+      {children}
     </div>
   );
 }
