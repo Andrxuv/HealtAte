@@ -106,7 +106,7 @@ export default function ScanPage() {
       setTimeout(() => {
         setLoading(false);
         navigate('/analysis', { state: { analysisData, imagePreviewUrl } });
-      }, 14000);
+      }, 2000);
     } catch (err) {
       const data = err.response?.data;
       console.error('วิเคราะห์ภาพไม่สำเร็จ:', data ? JSON.stringify(data, null, 2) : err.message, `(HTTP ${err.response?.status ?? 'none'})`);
@@ -288,19 +288,19 @@ export default function ScanPage() {
 
       {/* Hero */}
       <RevealSection delay={0}>
-      <div className="relative pt-20 pb-6 px-6 flex-shrink-0 text-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-emerald-50 via-emerald-50/60 to-brand-cream pointer-events-none" />
-        <div className="relative">
-          {/* Floating icon with pulse rings */}
-          <div className="relative inline-block mb-5">
-            <div className="absolute inset-0 rounded-3xl bg-brand-green pulse-ring" style={{ margin: '-10px' }} />
-            <Camera size={34} className="text-black" />
+        <div className="relative pt-20 pb-6 px-6 flex-shrink-0 text-center overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-emerald-50 via-emerald-50/60 to-brand-cream pointer-events-none" />
+          <div className="relative">
+            {/* Floating icon with pulse rings */}
+            <div className="relative inline-block mb-5">
+              <div className="absolute inset-0 rounded-3xl bg-brand-green pulse-ring" style={{ margin: '-10px' }} />
+              <Camera size={34} className="text-black" />
 
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-1.5">คุณกินอะไรแล้วหรือยัง?</h1>
+            <p className="text-sm text-gray-500 leading-relaxed">ถ่ายรูปหรืออัปโหลดเพื่อดูข้อมูล<br />โภชนาการได้ทันที</p>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-1.5">คุณกินอะไรแล้วหรือยัง?</h1>
-          <p className="text-sm text-gray-500 leading-relaxed">ถ่ายรูปหรืออัปโหลดเพื่อดูข้อมูล<br />โภชนาการได้ทันที</p>
         </div>
-      </div>
       </RevealSection>
 
       {/* Backend offline warning */}
@@ -344,51 +344,51 @@ export default function ScanPage() {
 
       {/* Action buttons */}
       <RevealSection delay={100}>
-      <div className="flex-1 flex flex-col gap-4 px-5 pb-6 justify-center">
-        {/* Camera */}
-        <button
-          onClick={() => cameraInputRef.current.click()}
-          className="relative w-full h-44 rounded-3xl overflow-hidden shadow-2xl shadow-brand-green/20 group active:scale-[0.98] transition-transform"
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-brand-green via-emerald-600 to-emerald-600 transition-all duration-500" />
+        <div className="flex-1 flex flex-col gap-4 px-5 pb-6 justify-center">
+          {/* Camera */}
+          <button
+            onClick={() => cameraInputRef.current.click()}
+            className="relative w-full h-44 rounded-3xl overflow-hidden shadow-2xl shadow-brand-green/20 group active:scale-[0.98] transition-transform"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-brand-green via-emerald-600 to-emerald-600 transition-all duration-500" />
 
-          {/* Decorative circles */}
-          <div className="relative flex flex-col items-center justify-center h-full gap-3 text-white">
-            <div className="w-16 h-16 bg-white/25 rounded-full flex items-center justify-center backdrop-blur-md ring-4 ring-white/20 group-hover:ring-white/40 group-hover:scale-110 transition-all duration-300">
-              <Camera size={30} />
+            {/* Decorative circles */}
+            <div className="relative flex flex-col items-center justify-center h-full gap-3 text-white">
+              <div className="w-16 h-16 bg-white/25 rounded-full flex items-center justify-center backdrop-blur-md ring-4 ring-white/20 group-hover:ring-white/40 group-hover:scale-110 transition-all duration-300">
+                <Camera size={30} />
+              </div>
+              <div>
+                <p className="font-bold text-lg">ถ่ายรูป</p>
+                <p className="text-white/70 text-xs mt-0.5">ใช้กล้องถ่ายอาหารโดยตรง</p>
+              </div>
             </div>
-            <div>
-              <p className="font-bold text-lg">ถ่ายรูป</p>
-              <p className="text-white/70 text-xs mt-0.5">ใช้กล้องถ่ายอาหารโดยตรง</p>
+          </button>
+
+          {/* Gallery */}
+          <button
+            onClick={() => fileInputRef.current.click()}
+            className="w-full h-24 bg-white border-2 border-dashed border-gray-200 rounded-3xl text-gray-600 flex items-center justify-center gap-4 hover:border-brand-green hover:text-brand-green hover:bg-emerald-50 active:scale-[0.98] transition-all shadow-sm group"
+          >
+            <div className="w-11 h-11 rounded-2xl bg-gray-100 group-hover:bg-emerald-100 flex items-center justify-center transition-colors flex-shrink-0">
+              <ImageIcon size={20} />
             </div>
-          </div>
-        </button>
+            <div className="text-left">
+              <p className="font-semibold text-sm">อัปโหลดจากแกลเลอรี่</p>
+              <p className="text-xs text-gray-400 group-hover:text-emerald-400 transition-colors mt-0.5">เลือกรูปจากคลังภาพ</p>
+            </div>
+          </button>
 
-        {/* Gallery */}
-        <button
-          onClick={() => fileInputRef.current.click()}
-          className="w-full h-24 bg-white border-2 border-dashed border-gray-200 rounded-3xl text-gray-600 flex items-center justify-center gap-4 hover:border-brand-green hover:text-brand-green hover:bg-emerald-50 active:scale-[0.98] transition-all shadow-sm group"
-        >
-          <div className="w-11 h-11 rounded-2xl bg-gray-100 group-hover:bg-emerald-100 flex items-center justify-center transition-colors flex-shrink-0">
-            <ImageIcon size={20} />
+          {/* Tip */}
+          <div className="flex items-start gap-3 bg-white/70 rounded-2xl p-3.5 border border-gray-100">
+            <div className="w-7 h-7 bg-amber-50 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+              <Zap size={14} className="text-amber-500" />
+            </div>
+            <p className="text-xs text-gray-500 leading-relaxed">
+              <span className="font-semibold text-gray-700">เคล็ดลับ:</span>{' '}
+              ถ่ายรูปอาหารในมุมตรง ในแสงสว่าง และให้อาหารอยู่ในเฟรมทั้งหมดเพื่อผลลัพธ์ที่แม่นยำที่สุด
+            </p>
           </div>
-          <div className="text-left">
-            <p className="font-semibold text-sm">อัปโหลดจากแกลเลอรี่</p>
-            <p className="text-xs text-gray-400 group-hover:text-emerald-400 transition-colors mt-0.5">เลือกรูปจากคลังภาพ</p>
-          </div>
-        </button>
-
-        {/* Tip */}
-        <div className="flex items-start gap-3 bg-white/70 rounded-2xl p-3.5 border border-gray-100">
-          <div className="w-7 h-7 bg-amber-50 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
-            <Zap size={14} className="text-amber-500" />
-          </div>
-          <p className="text-xs text-gray-500 leading-relaxed">
-            <span className="font-semibold text-gray-700">เคล็ดลับ:</span>{' '}
-            ถ่ายรูปอาหารในมุมตรง ในแสงสว่าง และให้อาหารอยู่ในเฟรมทั้งหมดเพื่อผลลัพธ์ที่แม่นยำที่สุด
-          </p>
         </div>
-      </div>
       </RevealSection>
 
       <input type="file" accept="image/*" capture="environment" className="hidden" ref={cameraInputRef} onChange={e => handleFileChange(e, 'camera')} />
