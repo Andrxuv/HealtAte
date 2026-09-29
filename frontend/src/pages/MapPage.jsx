@@ -60,9 +60,9 @@ function makeFaMarker(pathKey, bgColor) {
   return L.divIcon({ html: pin, className: '', iconSize: [40, 48], iconAnchor: [20, 48], popupAnchor: [0, -50] });
 }
 
-const restaurantMarker = makeFaMarker('utensils',    '#1B4D3E');
-const gymMarker        = makeFaMarker('dumbbell',    '#2563eb');
-const userMarker       = makeFaMarker('locationDot', '#dc2626');
+const restaurantMarker = makeFaMarker('utensils', '#1B4D3E');
+const gymMarker = makeFaMarker('dumbbell', '#2563eb');
+const userMarker = makeFaMarker('locationDot', '#dc2626');
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function formatDist(m) {
@@ -97,19 +97,97 @@ function StarRow({ rating, reviews }) {
 }
 
 
+const MOCK_HEALTHY_PLACES = [
+  {
+    id: 'mock-healthy-1',
+    name: 'Ez cal อาหารคลีนเพื่อสุขภาพ',
+    type: 'healthy',
+    category: 'ร้านอาหารเพื่อสุขภาพ',
+    lat: 13.7563,
+    lng: 100.5018,
+    distM: 500,
+    address: 'สาขาใกล้คุณ',
+    rating: 5.0,
+    reviews: 1,
+    openingHours: '10:00 - 22:00',
+    phone: '-',
+    thumbnail: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=200&h=200&fit=crop'
+  },
+  {
+    id: 'mock-healthy-2',
+    name: 'สาระดีดี (SALAD D)',
+    type: 'healthy',
+    category: 'ร้านอาหารเพื่อสุขภาพ',
+    lat: 13.7580,
+    lng: 100.5030,
+    distM: 800,
+    address: 'สาขาใกล้คุณ',
+    rating: 4.5,
+    reviews: 85,
+    openingHours: '10:00 - 21:00',
+    phone: '099-491-4362',
+    thumbnail: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=200&h=200&fit=crop'
+  },
+  {
+    id: 'mock-healthy-3',
+    name: 'ร้านมิสเตอร์ สเต็ก สาขา ม.นเรศวร',
+    type: 'healthy',
+    category: 'ร้านอาหารเพื่อสุขภาพ',
+    lat: 13.7912,
+    lng: 100.2004,
+    distM: 1000,
+    address: 'สาขาใกล้คุณ',
+    rating: 4.7,
+    reviews: 149,
+    openingHours: '10:00 - 22:00',
+    phone: '0822099385',
+    thumbnail: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=200&h=200&fit=crop'
+  },
+  {
+    id: 'mock-healthy-4',
+    name: 'Steak Bkk สาขา : ม.นเรศวร',
+    type: 'healthy',
+    category: 'ร้านอาหารเพื่อสุขภาพ',
+    lat: 13.7929,
+    lng: 100.2072,
+    distM: 1200,
+    address: 'สาขาใกล้คุณ',
+    rating: 3.9,
+    reviews: 14,
+    openingHours: '09:00 - 21:00',
+    phone: '0956936604',
+    thumbnail: 'https://images.unsplash.com/photo-1544025162-83662580795c?w=200&h=200&fit=crop'
+  },
+  {
+    id: 'mock-healthy-5',
+    name: 'Jones Salad (โจรสลัด)',
+    type: 'healthy',
+    category: 'ร้านอาหารเพื่อสุขภาพ',
+    lat: 13.7906,
+    lng: 100.2336,
+    distM: 1200,
+    address: 'สาขาใกล้คุณ',
+    rating: 4.0,
+    reviews: 1,
+    openingHours: '09:00 - 21:00',
+    phone: '-',
+    thumbnail: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=200&h=200&fit=crop'
+  }
+];
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function MapPage() {
-  const mapRef       = useRef(null);
-  const leafletMap   = useRef(null);
+  const mapRef = useRef(null);
+  const leafletMap = useRef(null);
   const markersLayer = useRef(null);
 
-  const [status,        setStatus]        = useState('idle');
-  const [errorMsg,      setErrorMsg]      = useState('');
-  const [userCoords,    setUserCoords]    = useState(null);
-  const [places,        setPlaces]        = useState([]);
-  const [activeFilter,  setActiveFilter]  = useState('all');
+  const [status, setStatus] = useState('idle');
+  const [errorMsg, setErrorMsg] = useState('');
+  const [userCoords, setUserCoords] = useState(null);
+  const [places, setPlaces] = useState([]);
+  const [activeFilter, setActiveFilter] = useState('all');
   const [selectedPlace, setSelectedPlace] = useState(null);
-  const [radiusM,       setRadiusM]       = useState(2000);
+  const [radiusM, setRadiusM] = useState(2000);
   const [pendingRadius, setPendingRadius] = useState(2000);
 
   // ── Init map ──────────────────────────────────────────────────────────────
@@ -136,7 +214,8 @@ export default function MapPage() {
         .addTo(markersLayer.current)
         .bindPopup('<b style="font-family:Kanit,sans-serif">ตำแหน่งของคุณ</b>');
     }
-    const toShow = activeFilter === 'all' ? places : places.filter((p) => p.type === activeFilter);
+    const allPlaces = [...places, ...MOCK_HEALTHY_PLACES];
+    const toShow = activeFilter === 'all' ? allPlaces : allPlaces.filter((p) => p.type === activeFilter);
     toShow.forEach((p) => {
       const icon = p.type === 'gym' ? gymMarker : restaurantMarker;
       L.marker([p.lat, p.lng], { icon })
@@ -199,10 +278,12 @@ export default function MapPage() {
   // Auto-locate on mount
   useEffect(() => { locate(2000); }, []); // eslint-disable-line
 
-  const filtered        = activeFilter === 'all' ? places : places.filter((p) => p.type === activeFilter);
+  const allPlaces = [...places, ...MOCK_HEALTHY_PLACES];
+  const filtered = activeFilter === 'all' ? allPlaces : allPlaces.filter((p) => p.type === activeFilter);
   const restaurantCount = places.filter((p) => p.type === 'restaurant').length;
-  const gymCount        = places.filter((p) => p.type === 'gym').length;
-  const isSearching     = status === 'locating' || status === 'loading';
+  const gymCount = places.filter((p) => p.type === 'gym').length;
+  const healthyCount = MOCK_HEALTHY_PLACES.length;
+  const isSearching = status === 'locating' || status === 'loading';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#F7F5F0', position: 'relative', overflow: 'hidden' }}>
@@ -238,8 +319,10 @@ export default function MapPage() {
         background: 'linear-gradient(135deg,#1B4D3E 0%,#2A735D 100%)',
         color: '#fff', flexShrink: 0,
       }}>
-        <h1 style={{ margin: 0, fontSize: 18, fontWeight: 700, fontFamily: 'Kanit,sans-serif',
-          display: 'flex', alignItems: 'center', gap: 8 }}>
+        <h1 style={{
+          margin: 0, fontSize: 18, fontWeight: 700, fontFamily: 'Kanit,sans-serif',
+          display: 'flex', alignItems: 'center', gap: 8
+        }}>
           <FontAwesomeIcon icon={faMapLocationDot} style={{ fontSize: 16 }} />
           ค้นหาสถานที่สุขภาพ
         </h1>
@@ -265,8 +348,10 @@ export default function MapPage() {
             color: '#1B4D3E', transition: 'background 0.2s',
           }}
         >
-          <FontAwesomeIcon icon={faRotate} style={{ fontSize: 15,
-            animation: isSearching ? 'spin 0.8s linear infinite' : 'none' }} />
+          <FontAwesomeIcon icon={faRotate} style={{
+            fontSize: 15,
+            animation: isSearching ? 'spin 0.8s linear infinite' : 'none'
+          }} />
         </button>
 
         {isSearching && (
@@ -291,14 +376,18 @@ export default function MapPage() {
       {/* ── Radius Slider ── */}
       <div style={{ padding: '12px 16px 10px', background: '#fff', borderBottom: '1px solid #e5e7eb', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 6,
-            fontSize: 12, fontWeight: 600, color: '#374151', fontFamily: 'Kanit,sans-serif' }}>
+          <span style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            fontSize: 12, fontWeight: 600, color: '#374151', fontFamily: 'Kanit,sans-serif'
+          }}>
             <FontAwesomeIcon icon={faSliders} style={{ color: '#1B4D3E', fontSize: 13 }} />
             รัศมีการค้นหา
           </span>
-          <span style={{ background: '#f0fdf4', color: '#1B4D3E', fontWeight: 700,
+          <span style={{
+            background: '#f0fdf4', color: '#1B4D3E', fontWeight: 700,
             fontSize: 12, padding: '2px 10px', borderRadius: 99, fontFamily: 'Kanit,sans-serif',
-            border: '1.5px solid #bbf7d0' }}>
+            border: '1.5px solid #bbf7d0'
+          }}>
             {formatRadius(pendingRadius)}
           </span>
         </div>
@@ -347,12 +436,15 @@ export default function MapPage() {
       </div>
 
       {/* ── Filter Tabs ── */}
-      <div style={{ display: 'flex', gap: 8, padding: '10px 14px',
-        background: '#fff', borderBottom: '1px solid #e5e7eb', flexShrink: 0 }}>
+      <div style={{
+        display: 'flex', gap: 8, padding: '10px 14px',
+        background: '#fff', borderBottom: '1px solid #e5e7eb', flexShrink: 0, overflowX: 'auto', whiteSpace: 'nowrap'
+      }}>
         {[
-          { key: 'all',        label: `ทั้งหมด (${places.length})`,    icon: faMapLocationDot },
-          { key: 'restaurant', label: `อาหาร (${restaurantCount})`,     icon: faUtensils       },
-          { key: 'gym',        label: `ฟิตเนส (${gymCount})`,           icon: faDumbbell       },
+          { key: 'all', label: `ทั้งหมด (${allPlaces.length})`, icon: faMapLocationDot },
+          { key: 'restaurant', label: `อาหาร (${restaurantCount})`, icon: faUtensils },
+          { key: 'healthy', label: `เพื่อสุขภาพ (${healthyCount})`, icon: faUtensils },
+          { key: 'gym', label: `ฟิตเนส (${gymCount})`, icon: faDumbbell },
         ].map((f) => (
           <button key={f.key} className="map-filter-btn" onClick={() => setActiveFilter(f.key)}
             style={{
@@ -372,8 +464,10 @@ export default function MapPage() {
       {/* ── Result count ── */}
       {status === 'done' && filtered.length > 0 && (
         <div style={{ padding: '8px 16px 2px', flexShrink: 0 }}>
-          <p style={{ margin: 0, fontSize: 11, color: '#6b7280', fontFamily: 'Kanit,sans-serif',
-            display: 'flex', alignItems: 'center', gap: 5 }}>
+          <p style={{
+            margin: 0, fontSize: 11, color: '#6b7280', fontFamily: 'Kanit,sans-serif',
+            display: 'flex', alignItems: 'center', gap: 5
+          }}>
             <FontAwesomeIcon icon={faLocationArrow} style={{ color: '#1B4D3E', fontSize: 10 }} />
             พบ <strong style={{ color: '#1B4D3E', margin: '0 3px' }}>{filtered.length}</strong>
             สถานที่ในรัศมี
@@ -482,15 +576,19 @@ function PlaceCard({ place, index, isSelected, onClick }) {
         </div>
         <div style={{ display: 'flex', gap: 8, marginTop: 2 }}>
           {place.openingHours && typeof place.openingHours === 'string' && (
-            <span style={{ fontSize: 9, color: '#10b981', fontFamily: 'Kanit,sans-serif',
-              display: 'flex', alignItems: 'center', gap: 3 }}>
+            <span style={{
+              fontSize: 9, color: '#10b981', fontFamily: 'Kanit,sans-serif',
+              display: 'flex', alignItems: 'center', gap: 3
+            }}>
               <FontAwesomeIcon icon={faClock} style={{ fontSize: 8 }} />
               {place.openingHours}
             </span>
           )}
           {place.phone && (
-            <span style={{ fontSize: 9, color: '#6b7280', fontFamily: 'Kanit,sans-serif',
-              display: 'flex', alignItems: 'center', gap: 3 }}>
+            <span style={{
+              fontSize: 9, color: '#6b7280', fontFamily: 'Kanit,sans-serif',
+              display: 'flex', alignItems: 'center', gap: 3
+            }}>
               <FontAwesomeIcon icon={faPhone} style={{ fontSize: 8 }} />
               {place.phone}
             </span>
@@ -515,14 +613,16 @@ function PlaceCard({ place, index, isSelected, onClick }) {
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 function SkeletonCard() {
   return (
-    <div style={{ margin: '4px 12px', padding: '10px 12px', background: '#fff',
+    <div style={{
+      margin: '4px 12px', padding: '10px 12px', background: '#fff',
       borderRadius: 16, border: '1.5px solid #f3f4f6',
-      display: 'flex', alignItems: 'center', gap: 10 }}>
+      display: 'flex', alignItems: 'center', gap: 10
+    }}>
       <div className="animate-shimmer" style={{ width: 52, height: 52, borderRadius: 12, flexShrink: 0 }} />
       <div style={{ flex: 1 }}>
         <div className="animate-shimmer" style={{ height: 13, borderRadius: 6, marginBottom: 5, width: '65%' }} />
         <div className="animate-shimmer" style={{ height: 10, borderRadius: 6, marginBottom: 4, width: '40%' }} />
-        <div className="animate-shimmer" style={{ height: 9,  borderRadius: 6, width: '55%' }} />
+        <div className="animate-shimmer" style={{ height: 9, borderRadius: 6, width: '55%' }} />
       </div>
       <div className="animate-shimmer" style={{ width: 48, height: 24, borderRadius: 20 }} />
     </div>
@@ -533,15 +633,19 @@ function SkeletonCard() {
 function ErrorCard({ msg, onRetry }) {
   const isMissingKey = msg?.includes('SERPAPI_KEY');
   return (
-    <div style={{ margin: '16px 12px', padding: 20, background: '#fff',
-      borderRadius: 16, border: '1.5px solid #fee2e2', textAlign: 'center' }}>
+    <div style={{
+      margin: '16px 12px', padding: 20, background: '#fff',
+      borderRadius: 16, border: '1.5px solid #fee2e2', textAlign: 'center'
+    }}>
       <FontAwesomeIcon icon={faCircleExclamation} style={{ fontSize: 36, color: '#ef4444', marginBottom: 8 }} />
       <p style={{ margin: '0 0 6px', fontSize: 13, color: '#374151', fontFamily: 'Kanit,sans-serif' }}>
         {isMissingKey ? 'ยังไม่ได้ตั้งค่า SERPAPI_KEY' : msg}
       </p>
       {isMissingKey && (
-        <p style={{ margin: '0 0 14px', fontSize: 11, color: '#6b7280', fontFamily: 'Kanit,sans-serif',
-          background: '#f9fafb', padding: '8px 10px', borderRadius: 8, textAlign: 'left' }}>
+        <p style={{
+          margin: '0 0 14px', fontSize: 11, color: '#6b7280', fontFamily: 'Kanit,sans-serif',
+          background: '#f9fafb', padding: '8px 10px', borderRadius: 8, textAlign: 'left'
+        }}>
           เพิ่ม <code style={{ background: '#f3f4f6', padding: '1px 5px', borderRadius: 4 }}>SERPAPI_KEY=xxx</code>
           {' '}ลงใน <code style={{ background: '#f3f4f6', padding: '1px 5px', borderRadius: 4 }}>backend/.env</code>
           {' '}แล้วรีสตาร์ทเซิร์ฟเวอร์
@@ -562,7 +666,7 @@ function ErrorCard({ msg, onRetry }) {
 
 // ─── Empty Card ───────────────────────────────────────────────────────────────
 function EmptyCard({ filter, radius }) {
-  const labels = { restaurant: 'ร้านอาหาร', gym: 'ฟิตเนส', all: 'สถานที่' };
+  const labels = { restaurant: 'ร้านอาหาร', healthy: 'ร้านอาหารเพื่อสุขภาพ', gym: 'ฟิตเนส', all: 'สถานที่' };
   return (
     <div style={{ padding: '40px 20px', textAlign: 'center' }}>
       <FontAwesomeIcon icon={faMagnifyingGlass} style={{ fontSize: 36, color: '#d1d5db', marginBottom: 8 }} />
@@ -709,8 +813,10 @@ function PlaceDetailSheet({ place, onClose }) {
               <FontAwesomeIcon icon={faPhone} style={{ color: '#6b7280', fontSize: 12, flexShrink: 0 }} />
               <a
                 href={`tel:${place.phone}`}
-                style={{ margin: 0, fontSize: 12, color: accentColor, fontFamily: 'Kanit,sans-serif',
-                  textDecoration: 'none', fontWeight: 600 }}
+                style={{
+                  margin: 0, fontSize: 12, color: accentColor, fontFamily: 'Kanit,sans-serif',
+                  textDecoration: 'none', fontWeight: 600
+                }}
               >
                 {place.phone}
               </a>
