@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ArrowLeft, AlertTriangle, Info, Check, ShieldAlert, RefreshCw, Loader2, X, Sparkles } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Info, Check, ShieldAlert, RefreshCw, Loader2, X, Sparkles, Plus, Trash2 } from 'lucide-react';
 import { useStore } from '../store';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -123,6 +123,15 @@ export default function AnalysisPage() {
     setIngredients(updated);
   };
 
+  const handleAddIngredient = () => {
+    setIngredients([...ingredients, { name: '', weightGrams: 0, minGrams: 0, maxGrams: 0 }]);
+  };
+
+  const handleRemoveIngredient = (index) => {
+    const updated = ingredients.filter((_, i) => i !== index);
+    setIngredients(updated);
+  };
+
   const saveAndRecalculate = () => {
     const oldTotalWeight = initialData.ingredients.reduce((acc, curr) => acc + curr.weightGrams, 0);
     const newTotalWeight = ingredients.reduce((acc, curr) => acc + curr.weightGrams, 0);
@@ -233,10 +242,10 @@ export default function AnalysisPage() {
   })();
 
   const riskIndicator = {
-    none:   { dot: 'bg-emerald-400', text: 'text-emerald-600', label: 'สุขภาพดี' },
-    low:    { dot: 'bg-yellow-400',  text: 'text-yellow-600',  label: 'ความเสี่ยงต่ำ' },
-    medium: { dot: 'bg-orange-400',  text: 'text-orange-600',  label: 'ความเสี่ยงปานกลาง' },
-    high:   { dot: 'bg-red-500',     text: 'text-red-600',     label: 'ความเสี่ยงสูง' },
+    none: { dot: 'bg-emerald-400', text: 'text-emerald-600', label: 'สุขภาพดี' },
+    low: { dot: 'bg-yellow-400', text: 'text-yellow-600', label: 'ความเสี่ยงต่ำ' },
+    medium: { dot: 'bg-orange-400', text: 'text-orange-600', label: 'ความเสี่ยงปานกลาง' },
+    high: { dot: 'bg-red-500', text: 'text-red-600', label: 'ความเสี่ยงสูง' },
   }[riskLevel];
 
   // ── Full-screen re-analysis loading screen ────────────────────────────────
@@ -384,7 +393,7 @@ export default function AnalysisPage() {
           </div>
 
           {/* Disclaimer */}
-          <div className="bg-orange-50 border border-orange-100 rounded-2xl p-4 flex gap-3 text-orange-800">
+          <div className="bg-orange-100 border border-orange-500 rounded-2xl p-4 flex gap-3 text-orange-800">
             <Info size={20} className="shrink-0 mt-0.5" />
             <p className="text-xs leading-relaxed">
               <span className="font-bold">การประมาณค่า:</span> ปริมาณที่แสดงเป็นค่าโดยประมาณ (+/-20-40%) ขึ้นอยู่กับมุมในการถ่ายภาพ
@@ -393,75 +402,107 @@ export default function AnalysisPage() {
 
           {/* Ingredients & Editing */}
           <RevealSection delay={0}>
-          <div>
-            <div className="flex justify-between items-end mb-3">
-              <h2 className="text-lg font-bold text-gray-800">ส่วนผสมที่พบ</h2>
-              <button
-                onClick={() => isEditing ? saveAndRecalculate() : setIsEditing(true)}
-                className="text-brand-green text-sm font-bold flex items-center gap-1"
-              >
-                {isEditing ? <><Check size={14} /> บันทึก</> : <><RefreshCw size={14} /> แก้ไขวัตถุดิบ</>}
-              </button>
-            </div>
-            <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 space-y-3">
-              {ingredients.map((ing, idx) => (
-                <div key={idx} className="flex justify-between items-center">
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={ing.name}
-                      onChange={(e) => handleNameChange(idx, e.target.value)}
-                      className="text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded px-2 py-1 flex-1 mr-2 focus:outline-none focus:border-brand-green"
-                    />
-                  ) : (
-                    <span className="text-sm font-medium text-gray-700">{ing.name}</span>
+            <div className="bg-emerald-800 rounded-4xl p-6 shadow-lg shadow-brand-emerald/30 relative overflow-hidden transition-shadow duration-300">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-black text-white tracking-tight">
+                  ส่วนผสมหลัก
+                </h2>
+                <button
+                  onClick={() => isEditing ? saveAndRecalculate() : setIsEditing(true)}
+                  className={cn(
+                    "px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-colors",
+                    isEditing
+                      ? "bg-white text-brand-green shadow-sm hover:bg-gray-50"
+                      : "bg-white text-emerald-800 hover:bg-white/80"
                   )}
+                >
+                  {isEditing ? <><Check size={16} /> บันทึก</> : <><RefreshCw size={16} /> แก้ไข</>}
+                </button>
+              </div>
 
-                  {isEditing ? (
-                    <div className="flex items-center gap-1 shrink-0">
+              <div className="space-y-3">
+                {ingredients.map((ing, idx) => (
+                  <div
+                    key={idx}
+                    className="flex justify-between items-center p-4 rounded-2xl bg-[#e8fce1] border border-[#bbf7d0] transition-colors duration-300 group gap-3"
+                  >
+                    {isEditing ? (
                       <input
-                        type="number"
-                        value={ing.weightGrams}
-                        onChange={(e) => handleWeightChange(idx, e.target.value)}
-                        className="w-16 bg-gray-50 border border-gray-200 rounded px-2 py-1 text-sm text-right focus:outline-none focus:border-brand-green"
+                        type="text"
+                        value={ing.name}
+                        onChange={(e) => handleNameChange(idx, e.target.value)}
+                        className="text-base font-bold text-gray-900 bg-white border border-gray-200 rounded-xl px-3 py-2 flex-1 min-w-0 focus:outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/20 shadow-sm transition-all"
                       />
-                      <span className="text-xs text-gray-500">กรัม</span>
-                    </div>
-                  ) : (
-                    <span className="text-sm text-gray-500">{ing.weightGrams}กรัม{' '}
-                      <span className="text-[10px] text-gray-400">({ing.minGrams}-{ing.maxGrams}กรัม)</span>
-                    </span>
-                  )}
-                </div>
-              ))}
+                    ) : (
+                      <span className="text-base font-bold text-gray-800 flex items-center gap-3">
+                        <div className="w-2 h-2 rounded-full bg-brand-green" />
+                        {ing.name}
+                      </span>
+                    )}
+
+                    {isEditing ? (
+                      <div className="flex items-center gap-2 shrink-0">
+                        <div className="flex items-center gap-2 bg-white p-1.5 rounded-xl border border-gray-200 focus-within:border-brand-green focus-within:ring-2 focus-within:ring-brand-green/20 shadow-sm transition-all">
+                          <input
+                            type="number"
+                            value={ing.weightGrams}
+                            onChange={(e) => handleWeightChange(idx, e.target.value)}
+                            className="w-16 bg-transparent border-none rounded px-2 py-1 text-base font-black text-right focus:outline-none text-brand-green"
+                          />
+                          <span className="text-xs font-bold text-gray-400 pr-2">ก.</span>
+                        </div>
+                        <button
+                          onClick={() => handleRemoveIngredient(idx)}
+                          className="p-2 text-red-500 hover:bg-red-50 rounded-xl transition-colors shrink-0 border border-transparent hover:border-red-200 bg-white shadow-sm"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="text-right">
+                        <span className="text-lg font-black text-gray-900">{ing.weightGrams}<span className="text-sm font-bold text-gray-600 ml-0.5">ก.</span></span>
+                        <div className="text-[10px] text-gray-500 font-medium">({ing.minGrams}-{ing.maxGrams}ก.)</div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+                {isEditing && (
+                  <button
+                    onClick={handleAddIngredient}
+                    className="w-full py-3 rounded-2xl border-2 border-dashed border-white/50 text-white font-bold hover:bg-white/10 hover:border-white transition-all flex items-center justify-center gap-2 mt-4"
+                  >
+                    <Plus size={18} /> เพิ่มส่วนผสม
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
           </RevealSection>
 
           {/* Personalized Risks */}
           {data.risks && data.risks.length > 0 && (
             <RevealSection delay={80}>
-            <div>
-              <h2 className="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
-                <ShieldAlert size={20} className="text-red-500" /> ความเสี่ยงที่เกี่ยวข้องกับคุณ
-              </h2>
-              <div className="space-y-3">
-                {data.risks.map((risk, idx) => (
-                  <div key={idx} className={cn(
-                    'p-4 rounded-2xl border flex gap-3',
-                    risk.severity === 'high'   ? 'bg-red-50 border-red-100 text-red-900' :
-                    risk.severity === 'medium' ? 'bg-orange-50 border-orange-100 text-orange-900' :
-                                                 'bg-yellow-50 border-yellow-100 text-yellow-900'
-                  )}>
-                    <AlertTriangle size={24} className="shrink-0" />
-                    <div>
-                      <h3 className="font-bold text-sm mb-1">{risk.riskName}</h3>
-                      <p className="text-xs opacity-90">{risk.description}</p>
+              <div>
+                <h2 className="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+                  <ShieldAlert size={20} className="text-red-500" /> ความเสี่ยงที่เกี่ยวข้องกับคุณ
+                </h2>
+                <div className="space-y-3">
+                  {data.risks.map((risk, idx) => (
+                    <div key={idx} className={cn(
+                      'p-4 rounded-2xl border flex gap-3',
+                      risk.severity === 'high' ? 'bg-red-100 border-red-400 text-red-900' :
+                        risk.severity === 'medium' ? 'bg-orange-100 border-orange-400 text-orange-900' :
+                          'bg-yellow-50 border-yellow-100 text-yellow-900'
+                    )}>
+                      <AlertTriangle size={24} className="shrink-0" />
+                      <div>
+                        <h3 className="font-bold text-sm mb-1">{risk.riskName}</h3>
+                        <p className="text-xs opacity-90">{risk.description}</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
             </RevealSection>
           )}
 
@@ -469,24 +510,29 @@ export default function AnalysisPage() {
           <RevealSection delay={120}>
             <h2 className="text-lg font-bold text-gray-800 mb-4">สารอาหารหลัก</h2>
             <div className="grid grid-cols-2 gap-3">
-              <MacroRingCard label="โปรตีน"        value={data.macros.protein} unit="g" max={50}  color="#3b82f6" bg="#eff6ff" track="#bfdbfe" />
-              <MacroRingCard label="คาร์โบไฮเดรต" value={data.macros.carbs}   unit="g" max={300} color="#f59e0b" bg="#fffbeb" track="#fde68a" />
-              <MacroRingCard label="ไขมัน"         value={data.macros.fat}     unit="g" max={65}  color="#ef4444" bg="#fef2f2" track="#fecaca" />
-              <MacroRingCard label="ใยอาหาร"       value={data.macros.fiber}   unit="g" max={28}  color="#22c55e" bg="#f0fdf4" track="#bbf7d0" />
+              <MacroRingCard label="โปรตีน" value={data.macros.protein} unit="g" max={50} color="#3b82f6" bg="#eff6ff" track="#bfdbfe" />
+              <MacroRingCard label="คาร์โบไฮเดรต" value={data.macros.carbs} unit="g" max={300} color="#f59e0b" bg="#fffbeb" track="#fde68a" />
+              <MacroRingCard label="ไขมัน" value={data.macros.fat} unit="g" max={65} color="#ef4444" bg="#fef2f2" track="#fecaca" />
+              <MacroRingCard label="ใยอาหาร" value={data.macros.fiber} unit="g" max={28} color="#22c55e" bg="#f0fdf4" track="#bbf7d0" />
             </div>
           </RevealSection>
 
           {/* Micronutrients */}
           <RevealSection delay={160}>
-          <div>
-            <h2 className="text-lg font-bold text-gray-800 mb-3">ข้อมูลโภชนาการ </h2>
-            <p className="text-xs text-gray-500 mb-3">({data.micronutrients.minSugar}-{data.micronutrients.maxSugar}เปรียบเทียบตามร้อยละของปริมาณที่แนะนำต่อวัน)</p>
-            <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 space-y-4">
-              <ProgressBar label="โซเดียม" value={data.micronutrients.sodium} unit="mg" max={2300} warnAt={1500} />
-              <ProgressBar label="น้ำตาล" value={data.micronutrients.sugar} unit="g" max={50} warnAt={30} />
-              <ProgressBar label="ไขมันอิ่มตัว" value={data.micronutrients.satFat} unit="g" max={20} warnAt={13} />
+            <div className="bg-white rounded-[1rem] p-6 shadow-xl shadow-gray-200/50 border border-gray-100 relative overflow-hidden transition-shadow duration-300">
+              <h1 className="text-lg font-bold text-gray-800 mb-4">ข้อมูลโภชนาการ</h1>
+              <h2 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-6">
+                (% ปริมาณที่แนะนำต่อวัน)
+              </h2>
+              <div className="space-y-4">
+                <ProgressBar label="โซเดียม" value={data.micronutrients.sodium || 0} unit="mg" max={2300} isLimitCategory={true} />
+                <ProgressBar label="น้ำตาล" value={data.micronutrients.sugar || 0} unit="g" max={50} isLimitCategory={false} />
+                <ProgressBar label="ไขมันอิ่มตัว" value={data.micronutrients.satFat || 0} unit="g" max={20} isLimitCategory={true} />
+                <ProgressBar label="วิตามินซี" value={data.micronutrients.vitaminC || 0} unit="mg" max={90} isLimitCategory={false} />
+                <ProgressBar label="ธาตุเหล็ก" value={data.micronutrients.iron || 0} unit="mg" max={18} isLimitCategory={false} />
+                <ProgressBar label="แคลเซียม" value={data.micronutrients.calcium || 0} unit="mg" max={1300} isLimitCategory={false} />
+              </div>
             </div>
-          </div>
           </RevealSection>
 
           <button
@@ -541,10 +587,10 @@ function MacroRingCard({ label, value, unit, max, color, bg, track }) {
     return () => obs.disconnect();
   }, []);
 
-  const pct          = Math.min(Math.round((value / max) * 100), 100);
-  const r            = 28;
-  const circ         = 2 * Math.PI * r;
-  const dashArray    = animated ? `${(pct / 100) * circ} ${circ}` : `0 ${circ}`;
+  const pct = Math.min(Math.round((value / max) * 100), 100);
+  const r = 28;
+  const circ = 2 * Math.PI * r;
+  const dashArray = animated ? `${(pct / 100) * circ} ${circ}` : `0 ${circ}`;
 
   return (
     <div
@@ -600,22 +646,24 @@ function MacroRingCard({ label, value, unit, max, color, bg, track }) {
   );
 }
 
-function ProgressBar({ label, value, unit, max, warnAt }) {
+function ProgressBar({ label, value, unit, max, isLimitCategory }) {
   const percent = Math.min((value / max) * 100, 100);
-  const isWarn = value > warnAt;
-  const isDanger = value > max;
+
+  const labelColor = isLimitCategory ? 'text-[#8b4513] font-semibold' : 'text-gray-500';
+  const barColor = isLimitCategory ? 'bg-[#8b4513]' : 'bg-[#2b7a2b]';
+  const percentColor = isLimitCategory ? 'text-[#8b4513]' : 'text-gray-500';
 
   return (
-    <div>
-      <div className="flex justify-between text-xs font-bold mb-1">
-        <span className="text-gray-700">{label}</span>
-        <span className="text-gray-500">{value}{unit} <span className="font-normal text-[10px]">/ {max}{unit}</span></span>
+    <div className="flex items-center gap-4 py-1">
+      <div className={`w-24 shrink-0 text-sm ${labelColor}`}>
+        {label}
       </div>
-      <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-        <div
-          className={cn("h-full rounded-full transition-all", isDanger ? 'bg-red-500' : isWarn ? 'bg-orange-400' : 'bg-brand-green')}
-          style={{ width: `${percent}%` }}
-        ></div>
+      <div className="flex-1 h-2 bg-[#e5e5e0] rounded-full overflow-hidden">
+        <div className={`h-full rounded-full transition-all duration-1000 ease-out ${barColor}`} style={{ width: `${percent}%` }} />
+      </div>
+      <div className="w-14 shrink-0 text-right flex flex-col items-end leading-tight">
+        <span className="text-sm font-semibold text-gray-700">{value}{unit}</span>
+        <span className={`text-xs font-medium ${percentColor}`}>{Math.round(percent)}%</span>
       </div>
     </div>
   );
