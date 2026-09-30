@@ -172,6 +172,81 @@ const MOCK_HEALTHY_PLACES = [
     openingHours: '09:00 - 21:00',
     phone: '-',
     thumbnail: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=200&h=200&fit=crop'
+  },
+  {
+    id: 'mock-healthy-7',
+    name: 'สวนเฉลิมพระเกียรติฯ',
+    type: 'publicplace',
+    category: 'ที่สาธารณะ',
+    lat: 18.7906,
+    lng: 105.2336,
+    distM: 12000,
+    address: 'ใกล้คุณ',
+    rating: 4.0,
+    reviews: 1,
+    openingHours: '09:00 - 21:00',
+    phone: '-',
+    thumbnail: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTD0RPI7zOW2LOMMqxJxIQb3HwnrB9M-3nERJt-UXKYoVUMkmD7B6VxkI0&s=10'
+  },
+  {
+    id: 'mock-healthy-8',
+    name: 'สนามกีฬาจังหวัดพิษณุโลก',
+    type: 'publicplace',
+    category: 'ที่สาธารณะ',
+    lat: 18.7906,
+    lng: 105.2336,
+    distM: 14000,
+    address: 'ใกล้คุณ',
+    rating: 4.0,
+    reviews: 1,
+    openingHours: '09:00 - 21:00',
+    phone: '-',
+    thumbnail: 'https://image.makewebcdn.com/makeweb/m_1920x0/je5w0snKI/project11/%E0%B8%AA%E0%B8%99%E0%B8%B2%E0%B8%A1%E0%B8%81%E0%B8%B5%E0%B8%AC%E0%B8%B2_%E0%B8%A1_%E0%B8%A3%E0%B8%B2%E0%B8%8A%E0%B8%A0%E0%B8%B1%E0%B8%8E%E0%B8%99%E0%B8%84%E0%B8%A3%E0%B8%A3%E0%B8%B2%E0%B8%8A%E0%B8%AA%E0%B8%B5%E0%B8%A1%E0%B8%B2_%E0%B8%88_1.jpg?v=202405291424'
+  },
+  {
+    id: 'mock-healthy-9',
+    name: 'สวนกลางเมือง พิษณุโลก',
+    type: 'publicplace',
+    category: 'ที่สาธารณะ',
+    lat: 18.7906,
+    lng: 105.2336,
+    distM: 18000,
+    address: 'ใกล้คุณ',
+    rating: 4.0,
+    reviews: 1,
+    openingHours: '09:00 - 21:00',
+    phone: '-',
+    thumbnail: 'https://lh3.googleusercontent.com/grass-cs/AABkmLd73SE36A3Ks_ZvQGlgxGjXNr2uvDGW8fUW51iFbPTTPIPLz3t1rgYx5YMDr4o_1UyiHMLRsjx31mf_tgLyGooBTPsMpGjFABSBAHY2DEWlsH7a8KWckieGm_n5jfxpe5H3Fy8=s1360-w1360-h1020-rw'
+  },
+  {
+    id: 'mock-healthy-10',
+    name: 'สวนสาธารณะริมน้ำน่าน',
+    type: 'publicplace',
+    category: 'ที่สาธารณะ',
+    lat: 18.7906,
+    lng: 105.2336,
+    distM: 18000,
+    address: 'ใกล้คุณ',
+    rating: 4.3,
+    reviews: 431,
+    openingHours: '09:00 - 21:00',
+    phone: '-',
+    thumbnail: 'https://lh3.googleusercontent.com/grass-cs/ACvplmP0WVOeUaywC7aYKLr5Nn40431qJqtlVM5PtV4gmyJYr0-htq_bS5pS2Tbb3Zu2T2M3DglOT4pdgBlYBNzvDkMWAo3QQGbj_II-xl4ewYMKKvCFKGJziQhcJz_9qYtL6S9hAeRqSA=s1360-w1360-h1020-rw'
+  },
+  {
+    id: 'mock-healthy-11',
+    name: 'องค์การบริหารส่วนจังหวัดพิษณุโลก',
+    type: 'publicplace',
+    category: 'ที่สาธารณะ',
+    lat: 18.7906,
+    lng: 105.2336,
+    distM: 18000,
+    address: 'ใกล้คุณ',
+    rating: 4.2,
+    reviews: 25,
+    openingHours: '09:00 - 21:00',
+    phone: '-',
+    thumbnail: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgJFeS8WiHLuHLju3qe6SKdyrY7Mf-4wgFehXiFHIZJA&s=10'
   }
 ];
 
@@ -282,7 +357,8 @@ export default function MapPage() {
   const filtered = activeFilter === 'all' ? allPlaces : allPlaces.filter((p) => p.type === activeFilter);
   const restaurantCount = places.filter((p) => p.type === 'restaurant').length;
   const gymCount = places.filter((p) => p.type === 'gym').length;
-  const healthyCount = MOCK_HEALTHY_PLACES.length;
+  const healthyCount = MOCK_HEALTHY_PLACES.filter((p) => p.type === 'healthy').length;
+  const publicplaceCount = MOCK_HEALTHY_PLACES.filter((p) => p.type === 'publicplace').length;
   const isSearching = status === 'locating' || status === 'loading';
 
   return (
@@ -445,10 +521,11 @@ export default function MapPage() {
           { key: 'restaurant', label: `อาหาร (${restaurantCount})`, icon: faUtensils },
           { key: 'healthy', label: `เพื่อสุขภาพ (${healthyCount})`, icon: faUtensils },
           { key: 'gym', label: `ฟิตเนส (${gymCount})`, icon: faDumbbell },
+          { key: 'publicplace', label: `สถานที่สาธารณะ (${publicplaceCount})`, icon: faDumbbell },
         ].map((f) => (
           <button key={f.key} className="map-filter-btn" onClick={() => setActiveFilter(f.key)}
             style={{
-              flex: 1, padding: '7px 2px', borderRadius: 20, border: 'none',
+              flexShrink: 0, padding: '7px 12px', borderRadius: 20, border: 'none',
               background: activeFilter === f.key ? '#1B4D3E' : '#F7F5F0',
               color: activeFilter === f.key ? '#fff' : '#374151',
               fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'Kanit,sans-serif',
@@ -666,7 +743,7 @@ function ErrorCard({ msg, onRetry }) {
 
 // ─── Empty Card ───────────────────────────────────────────────────────────────
 function EmptyCard({ filter, radius }) {
-  const labels = { restaurant: 'ร้านอาหาร', healthy: 'ร้านอาหารเพื่อสุขภาพ', gym: 'ฟิตเนส', all: 'สถานที่' };
+  const labels = { restaurant: 'ร้านอาหาร', healthy: 'ร้านอาหารเพื่อสุขภาพ', gym: 'ฟิตเนส', publicplace: 'สถานที่สาธารณะ', all: 'สถานที่' };
   return (
     <div style={{ padding: '40px 20px', textAlign: 'center' }}>
       <FontAwesomeIcon icon={faMagnifyingGlass} style={{ fontSize: 36, color: '#d1d5db', marginBottom: 8 }} />
