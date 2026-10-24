@@ -93,9 +93,6 @@ export default function HistoryPage() {
                     <span className="text-[10px] font-bold bg-brand-cream text-brand-green-dark px-2 py-0.5 rounded">
                       {item.analysis.calories} kcal
                     </span>
-                    <span className="text-[10px] font-bold bg-green-50 text-green-700 px-2 py-0.5 rounded">
-                      Score: {item.analysis.healthScore}
-                    </span>
                   </div>
                 </div>
               </div>
