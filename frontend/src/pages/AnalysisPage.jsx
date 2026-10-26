@@ -586,14 +586,14 @@ export default function AnalysisPage() {
                     <div>
                       <div className="flex items-center gap-2">
                         <h2 className="text-xl font-black text-gray-900 tracking-tight">
-                          สารอาหารหลัก
+                          ข้อมูลโภชนาการ
                         </h2>
                         <span className="text-[11px] font-bold text-brand-green bg-brand-green/10 px-2.5 py-0.5 rounded-full">
                           4 ชนิด
                         </span>
                       </div>
                       <p className="text-xs text-gray-400 mt-1">
-                        ปริมาณที่ได้รับต่อมื้อ เทียบกับเกณฑ์มาตรฐานต่อวัน (RDI)
+                        สารอาหารหบัก ปริมาณที่ได้รับต่อมื้อ เทียบกับเกณฑ์มาตรฐานต่อวัน (RDI)
                       </p>
                     </div>
                   </div>
@@ -692,10 +692,10 @@ export default function AnalysisPage() {
                   riskLevel === 'high'
                     ? "bg-gradient-to-br from-red-50 to-rose-100 border-red-200 text-red-950"
                     : riskLevel === 'medium'
-                    ? "bg-gradient-to-br from-orange-50 to-amber-100 border-orange-200 text-orange-950"
-                    : riskLevel === 'low'
-                    ? "bg-gradient-to-br from-yellow-50 to-amber-50 border-yellow-200 text-yellow-950"
-                    : "bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200 text-emerald-950"
+                      ? "bg-gradient-to-br from-orange-50 to-amber-100 border-orange-200 text-orange-950"
+                      : riskLevel === 'low'
+                        ? "bg-gradient-to-br from-yellow-50 to-amber-50 border-yellow-200 text-yellow-950"
+                        : "bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200 text-emerald-950"
                 )}
               >
                 <div className="flex items-center gap-4">
@@ -705,10 +705,10 @@ export default function AnalysisPage() {
                       riskLevel === 'high'
                         ? "bg-red-500 text-white"
                         : riskLevel === 'medium'
-                        ? "bg-orange-500 text-white"
-                        : riskLevel === 'low'
-                        ? "bg-yellow-500 text-white"
-                        : "bg-emerald-500 text-white"
+                          ? "bg-orange-500 text-white"
+                          : riskLevel === 'low'
+                            ? "bg-yellow-500 text-white"
+                            : "bg-emerald-500 text-white"
                     )}
                   >
                     {riskLevel === 'none' ? (
@@ -730,10 +730,10 @@ export default function AnalysisPage() {
                       {riskLevel === 'high'
                         ? 'มีสารอาหารบางชนิดเกินเกณฑ์มาตรฐานอย่างมีนัยสำคัญ ควรระวังปริมาณการรับประทาน'
                         : riskLevel === 'medium'
-                        ? 'มีสารอาหารบางชนิดใกล้เคียงหรือเกินเกณฑ์เล็กน้อย ควรปรับสมดุลในมื้อถัดไป'
-                        : riskLevel === 'low'
-                        ? 'ความเสี่ยงอยู่ในเกณฑ์ต่ำ สามารถรับประทานได้ตามปกติ'
-                        : 'เมนูนี้มีความสมดุลและปลอดภัยสูง ไม่พบความเสี่ยงต่อสุขภาพที่น่ากังวล'}
+                          ? 'มีสารอาหารบางชนิดใกล้เคียงหรือเกินเกณฑ์เล็กน้อย ควรปรับสมดุลในมื้อถัดไป'
+                          : riskLevel === 'low'
+                            ? 'ความเสี่ยงอยู่ในเกณฑ์ต่ำ สามารถรับประทานได้ตามปกติ'
+                            : 'เมนูนี้มีความสมดุลและปลอดภัยสูง ไม่พบความเสี่ยงต่อสุขภาพที่น่ากังวล'}
                     </p>
                   </div>
                 </div>
@@ -760,8 +760,8 @@ export default function AnalysisPage() {
                             isHigh
                               ? 'border-red-200 hover:border-red-300'
                               : isMed
-                              ? 'border-orange-200 hover:border-orange-300'
-                              : 'border-yellow-200 hover:border-yellow-300'
+                                ? 'border-orange-200 hover:border-orange-300'
+                                : 'border-yellow-200 hover:border-yellow-300'
                           )}
                         >
                           <div className="flex items-start justify-between gap-3">
@@ -772,8 +772,8 @@ export default function AnalysisPage() {
                                   isHigh
                                     ? "bg-red-100 text-red-600"
                                     : isMed
-                                    ? "bg-orange-100 text-orange-600"
-                                    : "bg-yellow-100 text-yellow-600"
+                                      ? "bg-orange-100 text-orange-600"
+                                      : "bg-yellow-100 text-yellow-600"
                                 )}
                               >
                                 <AlertTriangle size={18} />
@@ -788,8 +788,8 @@ export default function AnalysisPage() {
                                 isHigh
                                   ? "bg-red-100 text-red-700 border border-red-200"
                                   : isMed
-                                  ? "bg-orange-100 text-orange-700 border border-orange-200"
-                                  : "bg-yellow-100 text-yellow-700 border border-yellow-200"
+                                    ? "bg-orange-100 text-orange-700 border border-orange-200"
+                                    : "bg-yellow-100 text-yellow-700 border border-yellow-200"
                               )}
                             >
                               {isHigh ? 'ความเสี่ยงสูง' : isMed ? 'ความเสี่ยงปานกลาง' : 'ความเสี่ยงต่ำ'}
