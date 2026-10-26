@@ -593,7 +593,7 @@ export default function AnalysisPage() {
                         </span>
                       </div>
                       <p className="text-xs text-gray-400 mt-1">
-                        สารอาหารหบัก ปริมาณที่ได้รับต่อมื้อ เทียบกับเกณฑ์มาตรฐานต่อวัน (RDI)
+                        สารอาหารหลัก ปริมาณที่ได้รับต่อมื้อ เทียบกับเกณฑ์มาตรฐานต่อวัน (RDI)
                       </p>
                     </div>
                   </div>
